@@ -6,9 +6,7 @@ const { User } = db;
 
 router.post("/", async (req, res) => {
   let user = await User.findOne({
-    where: {
-      email: req.body.email,
-    },
+    where: { email: req.body.email },
   });
 
   if (
@@ -19,7 +17,22 @@ router.post("/", async (req, res) => {
       message: `Could not find a user with the provided username and password`,
     });
   } else {
+    req.session.userId = user.userId;
     res.json({ user });
+  }
+});
+
+router.get("/profile", async (req, res) => {
+  console.log(req.session.userId);
+  try {
+    let user = await User.findOne({
+      where: {
+        userId: req.session.userId,
+      },
+    });
+    res.json(user);
+  } catch {
+    res.json(null);
   }
 });
 
